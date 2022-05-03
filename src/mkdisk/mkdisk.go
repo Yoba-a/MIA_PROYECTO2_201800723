@@ -1,6 +1,7 @@
 package mkdisk
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/rand"
 	"encoding/binary"
@@ -191,11 +192,22 @@ func ArchivoExiste(ruta string) bool {
 
 func EliminarDisco() {
 	if ArchivoExiste(path) {
-		err := os.Remove(path)
-		if err != nil {
-			fmt.Printf("Error eliminando disco: %v\n", err)
+		fmt.Println("desea eliminar el archivo  (y) para confirmar  ? ")
+
+		reader := bufio.NewReader(os.Stdin)
+		entrada, _ := reader.ReadString('\n')
+		eleccion := strings.TrimRight(entrada, "\n") // Remover el salto de línea de la entrada del usuario
+		if eleccion == "y" {
+			err := os.Remove(path)
+			if err != nil {
+				fmt.Printf("Error eliminando disco: %v\n", err)
+			} else {
+				fmt.Println("Disco eliminado correctamente")
+			}
 		} else {
-			fmt.Println("Disco eliminado correctamente")
+			fmt.Println("se cancelo la operacion")
 		}
+	} else {
+		fmt.Println("No existe el disco!")
 	}
 }

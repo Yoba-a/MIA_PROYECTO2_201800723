@@ -5,6 +5,7 @@ import (
 	"fdisk"
 	"fmt"
 	"mkdisk"
+	"mount"
 	"os"
 	"regexp"
 	"strings"
@@ -14,6 +15,7 @@ var mkdisk_com = regexp.MustCompile("(?i)mkdisk")
 var rmdisk_com = regexp.MustCompile("(?i)rmdisk")
 var read = regexp.MustCompile("(?i)read")
 var fdisk_com = regexp.MustCompile("(?i)fdisk")
+var mount_com = regexp.MustCompile("(?i)mount")
 
 func main() {
 
@@ -57,6 +59,10 @@ func main() {
 			fdisk.Analizador(eleccion)
 			fdisk.Abrir_mbr()
 
+		} else if mount_com.MatchString(eleccion) {
+			fmt.Println("comando fdisk, creacion de particion en proceso...")
+			eleccion = mount_com.ReplaceAllLiteralString(eleccion, "")
+			mount.Analizador(eleccion)
 		}
 
 	}

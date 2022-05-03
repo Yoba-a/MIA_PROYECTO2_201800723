@@ -1,5 +1,7 @@
 package structs
 
+import "container/list"
+
 /**************************************************************
 	Definicion de structs
 ***************************************************************/
@@ -22,7 +24,7 @@ type Particion struct {
 
 type Ebr struct {
 	Status byte
-	Fit    byte
+	Fit    [2]byte
 	Start  int64
 	Size   int64
 	Next   int64
@@ -31,8 +33,8 @@ type Ebr struct {
 
 type DiscoMontado struct {
 	Path   [100]byte
-	ID     byte
-	Estado byte
+	ID     int
+	Estado int
 	lista  [100]ParticionMontada
 }
 
@@ -116,4 +118,14 @@ type archivo struct {
 	FileApInodo          int64
 	FileDateCreacion     [16]byte
 	FileDateModificacion [16]byte
+}
+
+var discos = list.New()
+
+func montar_disco(montado DiscoMontado) {
+	discos.PushBack(montado)
+}
+
+func Discos_montados() *list.List {
+	return discos
 }
