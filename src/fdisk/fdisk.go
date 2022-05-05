@@ -221,7 +221,8 @@ func nombre_existente() bool {
 	for k := range masterBoot.Tabla {
 		name_aux := string(masterBoot.Tabla[k].Name[:])
 		fmt.Println(name_aux)
-		if strings.Compare(name_aux, name) == 1 {
+		fmt.Print(name)
+		if name_aux == name {
 			existe = true
 			break
 		}
@@ -235,6 +236,7 @@ func verificar_p_ext() bool {
 		tipo_ext := string(masterBoot.Tabla[k].Type)
 		if tipo_ext == "e" {
 			ext = true
+			break
 		}
 	}
 	return ext
@@ -346,12 +348,12 @@ func crear_particion() {
 							if Ebr.Next == -1 && strings.Compare(name_ebr, name) != 1 {
 								Ebr.Next = Ebr.Size + Ebr.Start + 1
 								var inicio_nueva = Ebr.Next
-								if (inicio_nueva + get_size() + 1) < tamano_ext {
+								if (inicio_nueva + get_size() + 1) < (inicio + tamano_ext) {
 									insertar_ebr(Ebr.Start)
 									copy(Ebr.Fit[:], fit)
 									copy(Ebr.Name[:], name)
 									Ebr.Start = inicio_nueva
-									Ebr.Size = get_size()
+									Ebr.Size = get_size() + int64(unsafe.Sizeof(Ebr))
 									Ebr.Next = -1
 									Ebr.Status = 1
 									insertar_ebr(inicio_nueva)

@@ -35,12 +35,12 @@ type DiscoMontado struct {
 	Path   [100]byte
 	ID     int
 	Estado int
-	lista  [100]ParticionMontada
+	Lista  [100]ParticionMontada
 }
 
 type ParticionMontada struct {
 	ID            [4]byte
-	nombre        [16]byte
+	Nombre        [16]byte
 	EstadoFormato byte
 	EstadoMount   byte
 }
@@ -122,7 +122,7 @@ type archivo struct {
 
 var discos = list.New()
 
-func montar_disco(montado DiscoMontado) {
+func Montar_disco(montado DiscoMontado) {
 	discos.PushBack(montado)
 }
 
