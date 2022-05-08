@@ -127,7 +127,7 @@ func Reporte_mbr() {
 				"1 [ label = <<TABLE color = \"black\"> \n" +
 				"<TR>\n" +
 				"<td > mbr tamaño_disco= " + strconv.Itoa(int(masterBoot.Tamano)) + "</td>\n"
-			//por particion
+			//por par![](../../../proyecto_archivos/231A.jpg)ticion
 			if masterBoot.Tabla[0].Type == tipo {
 				var porcentaje = strconv.Itoa(int(masterBoot.Tabla[0].Size) * 100 / int(masterBoot.Tamano))
 				code_dot += "<td >" + part1 + "\n " + porcentaje + "%" + "</td>\n"
@@ -136,6 +136,7 @@ func Reporte_mbr() {
 				var colspan = strconv.Itoa(tam)
 				code_dot += "<td coslspan=\"" + colspan + "\"" + ">" + "extendida" + "\n " + "</td>\n"
 				code_dot += code
+
 			}
 			if masterBoot.Tabla[1].Type == tipo {
 				var porcentaje = strconv.Itoa(int(masterBoot.Tabla[1].Size) * 100 / int(masterBoot.Tamano))
@@ -161,6 +162,10 @@ func Reporte_mbr() {
 				code_dot += "<td >" + part4 + "\n " + porcentaje + "%" + "</td>\n"
 
 			} else {
+				tam, code := infologicas()
+				var colspan = strconv.Itoa(tam)
+				code_dot += "<td coslspan=\"" + colspan + "\"" + ">" + "extendida" + "\n " + "</td>\n"
+				code_dot += code
 
 			}
 
@@ -314,12 +319,14 @@ func infologicas() (int, string) {
 		Abrir_ebr(Ebr.Next)
 		var name_ebr = name_rep.FindString(string(Ebr.Name[:]))
 		var porcentaje = strconv.Itoa(int(Ebr.Size) * 100 / int(masterBoot.Tamano))
+		info += "<td >ebr</td>\n"
 		info += "<td >" + name_ebr + "\n " + porcentaje + "%" + "</td>\n"
 		size++
 	}
 	size++
 	var name_ebr = name_rep.FindString(string(Ebr.Name[:]))
 	var porcentaje = strconv.Itoa(int(Ebr.Size) * 100 / int(masterBoot.Tamano))
+	info += "<td >ebr</td>\n"
 	info += "<td >" + name_ebr + "\n " + porcentaje + "%" + "</td>\n"
 
 	return size, info

@@ -64,6 +64,7 @@ func get_idDislk() structs.DiscoMontado {
 			disco_iterado := structs.DiscoMontado(k.Value.(structs.DiscoMontado))
 			var path_guardada = string(disco_iterado.Path[:])
 			if strings.Compare(path_guardada, path) == 1 {
+				structs.Discos_montados().Remove(k)
 				return disco_iterado
 			}
 			var id = disco_iterado.ID + 1
@@ -78,10 +79,25 @@ func get_idDislk() structs.DiscoMontado {
 }
 
 func Resultado_Mount() {
+
+	if structs.Discos_montados().Len() > 0 {
+		for k := structs.Discos_montados().Front(); k != nil; k = k.Next() {
+			disco_iterado := structs.DiscoMontado(k.Value.(structs.DiscoMontado))
+			var path_guardada = string(disco_iterado.Path[:])
+			fmt.Printf("Disco montado: %s \n", path_guardada)
+			fmt.Printf("id Disco montado : %d \n", disco_iterado.ID)
+			for s := range disco_iterado.Lista {
+				if disco_iterado.Lista[s].EstadoMount != 0 {
+					fmt.Printf(" 	particion montada:  %s \n", string(disco_iterado.Lista[s].ID[:]))
+				}
+			}
+		}
+	}
 	var disco_montado = get_idDislk()
 	Abrir_mbr()
 	var particion_externa = -1
 	var particion_montada = structs.ParticionMontada{}
+
 	for k := range masterBoot.Tabla {
 		var name_part = string(masterBoot.Tabla[k].Name[:])
 		if string(masterBoot.Tabla[k].Type) == "e" {
@@ -137,7 +153,7 @@ func Resultado_Mount() {
 							copy(particion_montada.ID[:], id)
 							disco_montado.Lista[l] = particion_montada
 							structs.Montar_disco(disco_montado)
-							fmt.Printf("particion montado exitosamente con id %s \n", id)
+							fmt.Printf("particion montada exitosamente con id %s \n", id)
 							return
 						}
 					}
@@ -154,7 +170,7 @@ func Resultado_Mount() {
 						copy(particion_montada.ID[:], id)
 						disco_montado.Lista[l] = particion_montada
 						structs.Montar_disco(disco_montado)
-						fmt.Printf("particion montado exitosamente con id %s \n", id)
+						fmt.Printf("particion montada exitosamente con id %s \n", id)
 						return
 					}
 				}
@@ -207,7 +223,7 @@ func Abrir_mbr() {
 		}
 	}
 	abs_path = path[:pos2]
-	fmt.Print(abs_path)
+
 	if ArchivoExiste(path) {
 		file, err := os.Open(path)
 		defer file.Close()

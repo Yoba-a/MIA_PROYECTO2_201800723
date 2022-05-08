@@ -46,36 +46,51 @@ type ParticionMontada struct {
 }
 
 type Superbloque struct {
-	NombreHD               [100]byte
-	ArbolVirtualCount      int64
-	DetalleDirectorioCount int64
-	InodosCount            int64
-	BloquesCount           int64
-	ArbolVirtualFree       int64
-	DetalleDirectorioFree  int64
-	InodosFree             int64
-	BloquesFree            int64
-	DateCreacion           [16]byte
-	DateUltimoMontaje      [16]byte
-	MontajesCount          int64
-	InicioBMAV             int64
-	InicioAV               int64
-	InicioBMDD             int64
-	InicioDD               int64
-	InicioBMInodos         int64
-	InicioInodos           int64
-	InicioBMBloques        int64
-	InicioBloques          int64
-	InicioLog              int64
-	TamAV                  int64
-	TamDD                  int64
-	TamInodo               int64
-	TamBloque              int64
-	PrimerLibreAV          int64
-	PrimerLibreDD          int64
-	PrimerLibreInodo       int64
-	PrimerLibreBloque      int64
-	MagicNum               int64
+	S_filesystem_type   int
+	S_inodes_count      int64
+	S_blocks_count      int64
+	S_free_blocks_count int64
+	S_free_inodes_count int64
+	Mtime               [24]byte
+	S_mnt_count         int
+	S_magic             int64
+	S_inode_size        int64
+	S_block_size        int64
+	S_first_ino         int64
+	S_first_blo         int64
+	S_bm_inode_start    int64
+	S_bm_block_start    int64
+	S_inode_start       int64
+	S_block_start       int64
+}
+
+type Content struct {
+	B_name  [12]byte
+	B_inodo int64
+}
+
+type FolderBlock struct {
+	B_contect [4]Content
+}
+
+type Fileblock struct {
+	B_content [64]byte
+}
+
+type Pointer_block struct {
+	B_pointers [16]int64
+}
+
+type Inodes struct {
+	I_uid   int64
+	I_gid   int64
+	I_size  int64
+	I_atime [16]byte
+	I_ctime [16]byte
+	I_mtime [16]byte
+	I_block [15]int64
+	I_type  byte
+	I_perm  byte
 }
 
 type Avd struct {
@@ -124,6 +139,7 @@ var discos = list.New()
 
 func Montar_disco(montado DiscoMontado) {
 	discos.PushBack(montado)
+
 }
 
 func Discos_montados() *list.List {

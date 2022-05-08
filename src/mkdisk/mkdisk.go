@@ -174,6 +174,7 @@ func CrearDisco() {
 	//path := path
 	//graficarDISCO(path)
 	//graficarMBR(path)
+	archivo.Close()
 }
 
 func writeNextBytes(file *os.File, bytes []byte) {
