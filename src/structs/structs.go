@@ -46,13 +46,13 @@ type ParticionMontada struct {
 }
 
 type Superbloque struct {
-	S_filesystem_type   int
+	S_filesystem_type   int64
 	S_inodes_count      int64
 	S_blocks_count      int64
 	S_free_blocks_count int64
 	S_free_inodes_count int64
-	Mtime               [24]byte
-	S_mnt_count         int
+	Mtime               [16]byte
+	S_mnt_count         int64
 	S_magic             int64
 	S_inode_size        int64
 	S_block_size        int64
@@ -70,7 +70,7 @@ type Content struct {
 }
 
 type FolderBlock struct {
-	B_contect [4]Content
+	B_content [4]Content
 }
 
 type Fileblock struct {
@@ -89,8 +89,8 @@ type Inodes struct {
 	I_ctime [16]byte
 	I_mtime [16]byte
 	I_block [15]int64
-	I_type  byte
-	I_perm  byte
+	I_type  int64
+	I_perm  int64
 }
 
 type Avd struct {
@@ -105,15 +105,6 @@ type Avd struct {
 type Dd struct {
 	DDArrayFiles          [5]archivo
 	DDApDetalleDirectorio int64
-}
-
-type Inodo struct {
-	ICountInodo            int64
-	ISizeArchivo           int64
-	ICountBloquesAsignados int64
-	IArrayBloques          [4]int64
-	IApIndirecto           int64
-	IIdProper              [16]byte
 }
 
 type Bloque struct {

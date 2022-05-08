@@ -107,8 +107,7 @@ func logic(eleccion string) {
 	if comentario.MatchString(eleccion) {
 		eleccion = comentario.ReplaceAllLiteralString(eleccion, "")
 		fmt.Println(eleccion)
-	}
-	if mkdisk_com.MatchString(eleccion) {
+	} else if mkdisk_com.MatchString(eleccion) {
 		fmt.Println("comando mkdisk, creacion de disco en proceso...")
 		eleccion = mkdisk_com.ReplaceAllLiteralString(eleccion, "")
 		mkdisk.Analizador(eleccion)
@@ -122,11 +121,9 @@ func logic(eleccion string) {
 		fmt.Println("comando fdisk, creacion de particion en proceso...")
 		eleccion = fdisk_com.ReplaceAllLiteralString(eleccion, "")
 		fdisk.Analizador(eleccion)
-		if !fdisk.Error {
-			fdisk.Abrir_mbr()
-		} else {
-			fmt.Println("particion no creada")
-		}
+
+		fdisk.Abrir_mbr()
+		fdisk.Error = false
 
 	} else if mount_com.MatchString(eleccion) {
 		fmt.Println("comando mount, montando particion en proceso...")
@@ -138,10 +135,11 @@ func logic(eleccion string) {
 		eleccion = mount_com.ReplaceAllLiteralString(eleccion, "")
 		rep.Analizador(eleccion)
 		rep.Reportes()
-	} else if mkdisk_com.MatchString(eleccion) {
+	} else if mkfs.MatchString(eleccion) {
 		fmt.Println("comando mkfs, reporte en proceso...")
-		eleccion = mkdisk_com.ReplaceAllLiteralString(eleccion, "")
+		eleccion = mkfs.ReplaceAllLiteralString(eleccion, "")
 		mkfs2.Analizador(eleccion)
+		mkfs2.FormatearExt2()
 	}
 }
 

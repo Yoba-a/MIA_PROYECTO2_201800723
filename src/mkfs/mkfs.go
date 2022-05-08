@@ -40,7 +40,6 @@ func Analizador(input string) {
 	if id_com.MatchString(input) && type_com.MatchString(input) {
 		id = name_id.FindString(id_com.FindString(input))
 		tipo_ = name_.FindString(type_com.FindString(input))
-
 		fmt.Printf("name = %s\n", name)
 		fmt.Printf("id = %s\n", id)
 	} else {
@@ -89,6 +88,7 @@ func FormatearExt2() {
 			}
 		}
 		if iterador == -1 && ext != -1 {
+			fmt.Println("para particiones logicas aun nel xd")
 			/*
 				floor((partition.part_size - sizeof(Structs::Superblock)) /
 				(4 + sizeof(Structs::Inodes) + 3 * sizeof(Structs::Fileblock)))
@@ -101,16 +101,7 @@ func FormatearExt2() {
 
 			var n = int64(math.Floor(float64(result)))
 
-			superBloque := structs.Superbloque{}
-			superBloque.S_inodes_count = n
-			superBloque.S_free_inodes_count = n
-			superBloque.S_blocks_count = int64(3) * n
-			superBloque.S_free_blocks_count = int64(3) * n
-			currentTime := time.Now()
-			copy(superBloque.Mtime[:], currentTime.Format("2006-01-02 15:04:05"))
-			superBloque.S_mnt_count = 1
-			superBloque.S_filesystem_type = 2
-
+			ext2(masterBoot.Tabla[iterador], n)
 		}
 
 	} else {
@@ -118,7 +109,7 @@ func FormatearExt2() {
 	}
 }
 
-func ext2(superbloque structs.Superbloque, particion structs.Particion, n int64) {
+func ext2(particion structs.Particion, n int64) {
 	for pos, char := range path {
 		if char == '/' {
 			pos2 = pos
@@ -127,57 +118,142 @@ func ext2(superbloque structs.Superbloque, particion structs.Particion, n int64)
 	abs_path = path[:pos2]
 
 	if ArchivoExiste(path) {
-		file, err := os.Open(path)
+		file, err := os.OpenFile(path, os.O_RDWR, 0)
 		defer file.Close()
 		if err != nil {
 			log.Fatal(err)
 		}
+		var p = int64(unsafe.Sizeof(masterBoot))
+		fmt.Println(p)
+		var superbloque = structs.Superbloque{}
+		superbloque.S_inodes_count = n
+		superbloque.S_free_inodes_count = n
+		superbloque.S_blocks_count = int64(3) * n
+		superbloque.S_free_blocks_count = int64(3) * n
+		currentTime := time.Now()
+		copy(superbloque.Mtime[:], currentTime.Format("2006-01-02 15:04:05"))
+		superbloque.S_mnt_count = 1
+		superbloque.S_filesystem_type = 2
 		superbloque.S_bm_inode_start = particion.Start + int64(unsafe.Sizeof(structs.Superbloque{}))
 		superbloque.S_bm_block_start = superbloque.S_bm_inode_start + n
 		superbloque.S_inode_start = superbloque.S_bm_block_start + (int64(3) * n)
-		superbloque.S_bm_block_start = superbloque.S_bm_inode_start + (n + int64(unsafe.Sizeof(structs.Inodes{})))
+		superbloque.S_block_start = superbloque.S_bm_inode_start + (n + int64(unsafe.Sizeof(structs.Inodes{})))
 		file.Seek(particion.Start, 0)
-		var binario3 bytes.Buffer
-		binary.Write(&binario3, binary.BigEndian, superbloque)
-		writeNextBytes(file, binario3.Bytes())
+		var binario bytes.Buffer
+		binary.Write(&binario, binary.BigEndian, &superbloque)
+		writeNextBytes(file, binario.Bytes())
 
 		//formateando
 		var vacio int8 = 0
 		s := &vacio
-		var binario bytes.Buffer
+		var binario2 bytes.Buffer
 		file.Seek(superbloque.S_bm_inode_start, 0)
-		binary.Write(&binario, binary.BigEndian, s)
-		writeNextBytes(file, binario.Bytes())
+		binary.Write(&binario2, binary.BigEndian, s)
+		writeNextBytes(file, binario2.Bytes())
 
 		//situando el cursor en la ultima posicion
 		file.Seek(n, 0)
 
 		//colocando el ultimo byte para rellenar
-		var binario2 bytes.Buffer
-		binary.Write(&binario2, binary.BigEndian, s)
-		writeNextBytes(file, binario2.Bytes())
+		var binario_ bytes.Buffer
+		binary.Write(&binario_, binary.BigEndian, s)
+		writeNextBytes(file, binario_.Bytes())
 
 		file.Seek(superbloque.S_bm_block_start, 0)
-		binary.Write(&binario, binary.BigEndian, s)
-		writeNextBytes(file, binario.Bytes())
+		var binario__ bytes.Buffer
+		binary.Write(&binario__, binary.BigEndian, s)
+		writeNextBytes(file, binario__.Bytes())
 
 		file.Seek(n*3, 0)
-		binary.Write(&binario2, binary.BigEndian, s)
-		writeNextBytes(file, binario2.Bytes())
+		var binario3 bytes.Buffer
+		binary.Write(&binario3, binary.BigEndian, s)
+		writeNextBytes(file, binario3.Bytes())
 		//fin de formateo
 
 		//inodo
 		file.Seek(superbloque.S_inode_start, 0)
-		binary.Write(&binario3, binary.BigEndian, structs.Inodes{})
-		writeNextBytes(file, binario3.Bytes())
+		for i := 0; i < int(n); i++ {
+			var binario4 bytes.Buffer
+			binary.Write(&binario4, binary.BigEndian, structs.Inodes{})
+			writeNextBytes(file, binario4.Bytes())
+		}
 
 		//folder
 		file.Seek(superbloque.S_block_start, 0)
-		binary.Write(&binario3, binary.BigEndian, structs.FolderBlock{})
-		writeNextBytes(file, binario3.Bytes())
+		for j := 0; j < int(3*n); j++ {
+			var binario5 bytes.Buffer
+			binary.Write(&binario5, binary.BigEndian, structs.FolderBlock{})
+			writeNextBytes(file, binario5.Bytes())
+		}
+		block_minus := [15]int64{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
+		inode := structs.Inodes{}
+		inode.I_uid = 1
+		inode.I_gid = 1
+		inode.I_size = 0
+		inode.I_atime = superbloque.Mtime
+		inode.I_ctime = superbloque.Mtime
+		inode.I_mtime = superbloque.Mtime
+		inode.I_type = 0
+		inode.I_perm = 664
+		inode.I_block = block_minus
+		inode.I_block[0] = 0
 
+		fb := structs.FolderBlock{}
+		fb.B_content[0].B_name[0] = '.'
+		copy(fb.B_content[1].B_name[:], "..")
+		copy(fb.B_content[2].B_name[:], "user.txt")
+		fb.B_content[2].B_inodo = 1
+
+		var data = "1,G,root\n1,U, root,123\n"
+
+		inodetmp := structs.Inodes{}
+		inodetmp.I_uid = 1
+		inodetmp.I_gid = 1
+		inodetmp.I_size = int64(unsafe.Sizeof(data) + unsafe.Sizeof(structs.FolderBlock{}))
+		inodetmp.I_atime = superbloque.Mtime
+		inodetmp.I_ctime = superbloque.Mtime
+		inodetmp.I_mtime = superbloque.Mtime
+		inodetmp.I_type = 1
+		inodetmp.I_perm = 664
+		inodetmp.I_block = block_minus
+		inodetmp.I_block[0] = 1
+
+		inode.I_size = inodetmp.I_size + int64(unsafe.Sizeof(structs.FolderBlock{})) + int64(unsafe.Sizeof(structs.Inodes{}))
+
+		fileb := structs.Fileblock{}
+		copy(fileb.B_content[:], data)
+		file.Seek(superbloque.S_bm_inode_start, 0)
+		var char int8 = 1
+		var binario6 bytes.Buffer
+		binary.Write(&binario6, binary.BigEndian, char)
+		writeNextBytes(file, binario6.Bytes())
+		binary.Write(&binario6, binary.BigEndian, char)
+		writeNextBytes(file, binario6.Bytes())
+
+		file.Seek(superbloque.S_bm_block_start, 0)
+		var binario7 bytes.Buffer
+		binary.Write(&binario7, binary.BigEndian, char)
+		writeNextBytes(file, binario7.Bytes())
+		binary.Write(&binario7, binary.BigEndian, char)
+		writeNextBytes(file, binario7.Bytes())
+
+		file.Seek(superbloque.S_inode_start, 0)
+		var binario8 bytes.Buffer
+		binary.Write(&binario8, binary.BigEndian, inode)
+		writeNextBytes(file, binario8.Bytes())
+		var binario9 bytes.Buffer
+		binary.Write(&binario9, binary.BigEndian, inodetmp)
+		writeNextBytes(file, binario9.Bytes())
+
+		file.Seek(superbloque.S_block_start, 0)
+		var binario10 bytes.Buffer
+		binary.Write(&binario10, binary.BigEndian, fb)
+		writeNextBytes(file, binario10.Bytes())
+		var binario11 bytes.Buffer
+		binary.Write(&binario11, binary.BigEndian, fileb)
+		writeNextBytes(file, binario11.Bytes())
 		file.Close()
-
+		fmt.Print("Particion formateada correctamente")
 	} else {
 		fmt.Print("error el disco no existe en esta computadora...")
 	}
