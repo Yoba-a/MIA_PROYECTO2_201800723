@@ -22,6 +22,7 @@ var mount_com = regexp.MustCompile("(?i)mount")
 var exec_com = regexp.MustCompile("(?i)exec")
 var rep_com = regexp.MustCompile("(?i)rep")
 var mkfs = regexp.MustCompile("(?i)mkfs")
+var comentario = regexp.MustCompile("(?i)#")
 
 var path_exec = ""
 
@@ -103,6 +104,10 @@ func analizador_exec(input string) {
 
 func logic(eleccion string) {
 	fmt.Println(eleccion)
+	if comentario.MatchString(eleccion) {
+		eleccion = comentario.ReplaceAllLiteralString(eleccion, "")
+		fmt.Println(eleccion)
+	}
 	if mkdisk_com.MatchString(eleccion) {
 		fmt.Println("comando mkdisk, creacion de disco en proceso...")
 		eleccion = mkdisk_com.ReplaceAllLiteralString(eleccion, "")
@@ -117,7 +122,12 @@ func logic(eleccion string) {
 		fmt.Println("comando fdisk, creacion de particion en proceso...")
 		eleccion = fdisk_com.ReplaceAllLiteralString(eleccion, "")
 		fdisk.Analizador(eleccion)
-		fdisk.Abrir_mbr()
+		if !fdisk.Error {
+			fdisk.Abrir_mbr()
+		} else {
+			fmt.Println("particion no creada")
+		}
+
 	} else if mount_com.MatchString(eleccion) {
 		fmt.Println("comando mount, montando particion en proceso...")
 		eleccion = mount_com.ReplaceAllLiteralString(eleccion, "")

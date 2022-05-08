@@ -43,6 +43,8 @@ var barra = regexp.MustCompile("/")
 var masterBoot = structs.Mbr{}
 var Ebr = structs.Ebr{}
 
+var Error = false
+
 func Analizador(input string) {
 	if size_com.MatchString(input) && path_com.MatchString(input) && name_com.MatchString(input) {
 		size = numeros.FindString(size_com.FindString(input))
@@ -64,6 +66,7 @@ func Analizador(input string) {
 				input = fit_com.ReplaceAllLiteralString(input, "")
 				fmt.Printf("fit = %s\n", fit)
 			} else {
+				Error = true
 				fmt.Println("error sintaxis no esperada")
 				fmt.Println("valores no reconocidos -fit: ")
 				fmt.Printf("%q\n", fit_com.Split(input, -1))
@@ -78,6 +81,7 @@ func Analizador(input string) {
 				input = unit_com.ReplaceAllLiteralString(input, "")
 				fmt.Printf("unit = %s\n", unit)
 			} else {
+				Error = true
 				fmt.Println("error sintaxis no esperada")
 				fmt.Println("valores no reconocidos -unit: ")
 				fmt.Printf("%q\n", unit_com.Split(input, -1))
@@ -88,10 +92,12 @@ func Analizador(input string) {
 		}
 		if regexp.MustCompile("(?i)type").MatchString(input) {
 			if type_com.MatchString(input) {
+				Error = true
 				input = type_aux.ReplaceAllLiteralString(input, "")
 				type_ = strings.ToLower(type_val.FindString(input))
 				fmt.Printf("type = %s\n", type_)
 			} else {
+				Error = true
 				fmt.Println("error sintaxis no esperada")
 				fmt.Println("valores no reconocidos -type: ")
 				fmt.Printf("%q\n", type_com.Split(input, -1))
@@ -102,6 +108,7 @@ func Analizador(input string) {
 		}
 
 	} else {
+		Error = true
 		fmt.Println("error sintaxis no esperada los siguientes parametros son obligatorios: ")
 		fmt.Println("valores no reconocidos -path: ")
 		fmt.Printf("%q\n", path_com.Split(input, -1))
